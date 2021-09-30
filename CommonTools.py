@@ -30,8 +30,6 @@ class CommonTools:
             return list()
         elif number == 1:
             return [[i] for i in input_list]
-        elif number == input_list_length:
-            return ["".join(input_list)]
         results = list()
         # shows the current index of the current result from the input list
         index = list(range(number))

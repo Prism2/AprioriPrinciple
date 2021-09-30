@@ -42,12 +42,14 @@ def generate_association_rule_from_dataset(min_support, min_confidence, transact
 
 
 def user_run_rule():
+    print("\n")
     print("Please input the minimum support value:")
     support = float(input())
     print("Please input the minimum confidence value:")
     confidence = float(input())
     print("Please input the filename containing the transaction data:")
     tranaction = input()
+    print("\n")
     generate_association_rule_from_dataset(support, confidence, tranaction)
 
 

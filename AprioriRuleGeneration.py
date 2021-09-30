@@ -9,14 +9,17 @@ class AprioriRuleGeneration(BruteForceRuleGeneration):
     # f(k-1) candidate generation
     def fKMinusOneGeneration(self, level):
         # list of itemset at the new level
-        results = list()
+        results = set()
         # previous itemset
         prev = list()
         # level 1 only
         if level == 1:
             input = [next(iter(s)) for s in self.item_lattice[level - 1]]
             return [frozenset(i) for i in list(CommonTools.combinations(input, level + 1))]
-        for idx, itemset in enumerate(self.item_lattice[level - 1]):
+        result = list()
+        itemsets = [sorted(list(itemset)) for itemset in self.item_lattice[level - 1]]
+        itemsets.sort()
+        for idx, itemset in enumerate(itemsets):
             # sorted itemset
             itemset = sorted(list(itemset))
             # setup first itemset
@@ -28,30 +31,31 @@ class AprioriRuleGeneration(BruteForceRuleGeneration):
             # flag to see if k-1 items are the same
             sameKMinusOneItems = True
             # new itemset
-            result = list()
-            #goes through each item in current and previous itemset
+            # goes through each item in current and previous itemset
             for l in range(level - 1):
                 if prev[l] != current[l]:
                     sameKMinusOneItems = False
                     break
-                else:
-                    result.append(current[l])
-            #adds new candidate
             if sameKMinusOneItems:
-                result.append(prev[level - 1])
+                result.append(prev[level-1])
                 result.append(current[level - 1])
-                result = frozenset(result)
-                #check if result is a superset of infrequent item
-                for infrequent_item in self.infrequent_items:
-                    if result.issuperset(infrequent_item):
-                        sameKMinusOneItems = False
-                        break
-                if sameKMinusOneItems:
-                    results.append(frozenset(result))
-            #resets each itemset
+            elif len(result) > 0:
+                prefix = prev[:-1]
+                for candidate in CommonTools.combinations(result, 2):
+                    candidate = prefix + candidate
+                    # check if result is a superset of infrequent item
+                    frequent = True
+                    candidate = frozenset(candidate)
+                    for infrequent_item in self.infrequent_items:
+                        if candidate.issuperset(infrequent_item):
+                            frequent = False
+                            break
+                    if frequent:
+                        results.add(frozenset(candidate))
+                result = list()
             prev = current
-        #returns the new candidates
-        return results
+        # returns the new candidates
+        return list(results)
 
     # level 0 lists all products. level>0 uses f(k-1) f(k-1) generation logic (private helper method)
     def generate_itemset(self, level):

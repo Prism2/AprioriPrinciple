@@ -87,9 +87,3 @@ class BruteForceRuleGeneration:
                         print("{} -> {} Confidence level: {}".format(str(precedent)[10:-1],
                                                                      str(itemset.difference(precedent))[10:-1],
                                                                      numerator / denominator))
-
-
-# ct = CommonTools(['a', 'b', 'c'], [['a', 'b', 'c']], 0.5, 0.8)
-# brute = BruteForceRuleGeneration(ct)
-# brute.rule_generation()
-# print(brute.get_support_lattice(1))
