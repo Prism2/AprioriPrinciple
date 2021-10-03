@@ -1,5 +1,6 @@
 from CommonTools import CommonTools
 
+
 class BruteForceRuleGeneration:
 
     # constructor
@@ -12,6 +13,8 @@ class BruteForceRuleGeneration:
         self.item_lattice = dict()
         # itemset: count
         self.support_lattice = dict()
+        # list of candidate itemsets
+        self.candidate_itemsets = list()
 
     # itemset generation logic
     # level starts with 0 and generates all possible combinations of products at that level (private helper method)
@@ -43,12 +46,6 @@ class BruteForceRuleGeneration:
         for itemset in self.__get_item_lattice(level):
             self.__compare_itemset_with_transactions(itemset)
 
-    # set the min support level from 0 to 1
-    # def set_min_support(self, min_support):
-    #     self.support_threshold = max(len(self.transaction_file) * min_support, 0)
-    #     if self.support_threshold > len(self.transaction_file):
-    #         self.support_threshold = len(self.transaction_file)
-
     # public method to generate both item and support per level
     def get_support_lattice(self, level):
         if level not in self.item_lattice:
@@ -60,18 +57,16 @@ class BruteForceRuleGeneration:
     def get_support_count(self, item):
         return self.support_lattice.get(item, 0)
 
-    # public method to set the confidence level from 0 to 1
-    def set_min_confidence(self, min_confidence):
-        if 0 < min_confidence < 1:
-            self.min_confidence = min_confidence
-
     def candidate_generation(self):
+        if self.candidate_itemsets:
+            return self.candidate_itemsets
         candidate_itemsets = list()
         max_level = 0
         while len(self.get_support_lattice(max_level)) > 0:
             candidate_itemsets = candidate_itemsets + [k for candidate in self.get_support_lattice(max_level) for k in
                                                        candidate]
             max_level += 1
+        self.candidate_itemsets = candidate_itemsets
         return candidate_itemsets
 
     def rule_generation(self):
@@ -83,7 +78,13 @@ class BruteForceRuleGeneration:
                 for combination in CommonTools.combinations(itemset, level + 1):
                     precedent = frozenset(combination)
                     denominator = self.get_support_count(precedent)
-                    if numerator / denominator > self.min_confidence:
-                        print("{} -> {} Confidence level: {}".format(str(precedent)[10:-1],
-                                                                     str(itemset.difference(precedent))[10:-1],
-                                                                     numerator / denominator))
+                    if numerator / denominator >= self.min_confidence:
+                        output = "{} -> {} Support level: {} Confidence level: {}"
+                        precedent_str = str(precedent)[10:-1]
+                        consequent_str = str(itemset.difference(precedent))[10:-1]
+                        support = numerator / len(self.commonTools.all_products)
+                        confidence = numerator / denominator
+                        print(output.format(precedent_str,
+                                            consequent_str,
+                                            support,
+                                            confidence))

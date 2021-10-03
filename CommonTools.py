@@ -2,7 +2,7 @@ import csv
 
 class CommonTools:
     # default support and confidence level
-    def __init__(self, all_products, transaction_file, support_threshold, min_confidence=0.5):
+    def __init__(self, all_products, transaction_file, support_threshold=1, min_confidence=0.5):
         self.all_products = all_products
         self.transaction_file = transaction_file
         self.support_threshold = support_threshold
@@ -54,14 +54,3 @@ class CommonTools:
             while index[idx] + 1 >= index[idx + 1]:
                 idx -= 1
         return results
-
-
-# input = "a b c d e f g".split()
-# print(CommonTools.combinations(input, 5))
-# print(CommonTools.combinations(input, 1))
-# print(CommonTools.combinations(input, 7))
-# print(CommonTools.combinations(input, 8))
-
-# input = "a b".split()
-# print(CommonTools.combinations(input, 2))
-# print(CommonTools.combinations(input, 1))

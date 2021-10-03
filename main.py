@@ -1,18 +1,8 @@
-from AprioriRuleGeneration import AprioriRuleGeneration
-from BruteForceRuleGeneration import BruteForceRuleGeneration
 from CommonTools import CommonTools
+from BruteForceRuleGeneration import BruteForceRuleGeneration
+from AprioriRuleGeneration import AprioriRuleGeneration
 
-import pandas as pd
-import ast
 import time
-
-
-# def read_transactions(file_number):
-# all_products = pd.read_excel(r'transactions.xlsx', sheet_name='all_products')
-# all_products = all_products['Product'].to_list()
-# database = pd.read_excel(r'transactions.xlsx', sheet_name='database_{}'.format(file_number))
-# transactions = [set(ast.literal_eval(i)) for i in list(database['transactions'])]
-# return all_products, transactions
 
 
 def generate_association_rule_from_dataset(min_support, min_confidence, transaction_file):
@@ -30,25 +20,33 @@ def generate_association_rule_from_dataset(min_support, min_confidence, transact
     start_time = time.time()
     rule_generator = BruteForceRuleGeneration(common)
     rule_generator.rule_generation()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    brute_force_time = time.time() - start_time
+    with open("intermediary_steps_{}_brute_force.txt".format(transaction_file[:-4]), "w") as writer:
+        for candidate in rule_generator.candidate_itemsets:
+            writer.write(str(candidate)[10:-1] + "\n")
+    print("---------------- %s seconds ----------------" % brute_force_time)
     print("\n")
 
-    print("Generating association rules using Apriori principle optimization for sheet {}".format(transaction_file))
+    print("Generating association rules using Apriori principle optimization for sheet {}"
+          .format(transaction_file))
     start_time = time.time()
     rule_generator = AprioriRuleGeneration(common)
     rule_generator.rule_generation()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    apriori_time = time.time() - start_time
+    with open("intermediary_steps_{}_apriori.txt".format(transaction_file[:-4]), "w") as writer:
+        for candidate in rule_generator.candidate_itemsets:
+            writer.write(str(candidate)[10:-1] + "\n")
+    print("---------------- %s seconds ----------------" % apriori_time)
     print("\n")
+
+    print("Apriori is {} times faster".format(brute_force_time/apriori_time))
 
 
 def user_run_rule():
     print("\n")
-    print("Please input the minimum support value:")
-    support = float(input())
-    print("Please input the minimum confidence value:")
-    confidence = float(input())
-    print("Please input the filename containing the transaction data:")
-    tranaction = input()
+    tranaction = input("Please input the filename containing the transaction data:")
+    support = float(input("Please input the minimum support value:"))
+    confidence = float(input("Please input the minimum confidence value:"))
     print("\n")
     generate_association_rule_from_dataset(support, confidence, tranaction)
 

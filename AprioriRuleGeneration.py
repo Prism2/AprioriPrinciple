@@ -37,7 +37,7 @@ class AprioriRuleGeneration(BruteForceRuleGeneration):
                     sameKMinusOneItems = False
                     break
             if sameKMinusOneItems:
-                result.append(prev[level-1])
+                result.append(prev[level - 1])
                 result.append(current[level - 1])
             elif len(result) > 0:
                 prefix = prev[:-1]
@@ -60,8 +60,9 @@ class AprioriRuleGeneration(BruteForceRuleGeneration):
     # level 0 lists all products. level>0 uses f(k-1) f(k-1) generation logic (private helper method)
     def generate_itemset(self, level):
         if level == 0:
-            self.item_lattice[level] = [frozenset(i) for i in
-                                        list(CommonTools.combinations(self.all_products, level + 1))]
+            result = [frozenset(i) for i in
+                      list(CommonTools.combinations(self.all_products, level + 1))]
+            self.item_lattice[level] = result
         elif level > 0:
             self.item_lattice[level] = self.fKMinusOneGeneration(level)
 
@@ -76,6 +77,8 @@ class AprioriRuleGeneration(BruteForceRuleGeneration):
         self.item_lattice[level] = result
 
     def candidate_generation(self):
+        if self.candidate_itemsets:
+            return self.candidate_itemsets
         candidate_itemsets = list()
         max_level = 0
         while len(self.get_support_lattice(max_level)) > 0:
@@ -83,4 +86,5 @@ class AprioriRuleGeneration(BruteForceRuleGeneration):
             candidate_itemsets = candidate_itemsets + [k for candidate in self.get_support_lattice(max_level) for k in
                                                        candidate]
             max_level += 1
+        self.candidate_itemsets = candidate_itemsets
         return candidate_itemsets
